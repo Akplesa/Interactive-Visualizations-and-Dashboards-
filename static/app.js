@@ -1,110 +1,77 @@
-///Using the D3 library to read in samples.json.
-   
-d3.json("samples.json").then(function(data) {
-    console.log(data)
-});
-
-///Creating a horizontal bar chart with a dropdown menu to display the top 10 OTUs found in that individual.
- //Using D3 to select the dropdown menu
-
-var dropdownMenu = d3.select("#selDataset");
- //Using sample_values as the values for the bar chart, otu_ids as the labels for the bar chart, and otu_labels as the hovertext for the chart.
- // Assigning the dropdown menu item ID to a variable
- 
- var samples = dropdownMenu.property("value");
- function init() {
-    displayData(samples);
-}
-
-function displayData(samples) {
-    d3.json("samples.json").then((data) => {
-        var names = data.names;
-        var metadata = data.metadata;
-        var ids = data.samples.[0].otu_ids;
-        var sample_values = data.samples[0].sample_values;
-        var otu_labels = data.samples[0].otu_labels;
-        var otu_ids = data.samples.map(d => d.otu_ids.slice(0,10));
-  //Seting up bar chart
-        bar_chart(otu_ids, sample_values, otu_labels)
+///Using the D3 library to read in samples.json. 
+d3.json("data/samples.json").then(function(data) {
+    //Creating variables that are holding the initial values for sample_values, otu_lables, and otu_ids
+    var samples= data.samples[0].sample_values
+    var Ids= data.samples[0].otu_ids;
+    var Labels = data.samples[0].otu_labels;
   
-var bar_chart= function(ids, sampleV, hover_text ) {
+    // Creating Bar chart using sample_values as the values.
     var trace1 = {
-        type: 'bar',
-        x: sample_values.slice(0, 10).reverse(),
-        y: ids.slice(0, 10).reverse(),
-        text: hovText.slice(0, 10).reverse(),
-        marker: {
-            orientation: 'h',
-            color: 'rgb(100, 200, 182)',
-            opacity: 0.5,
-            line: {
-                color: 'rgb(10,10,10)',
-                width: 1.5
-            }
-        }
-};
-  
-var data = [trace1];
-var layout = {
-    title: 'THE TOP 10 OTUs',
-    xaxis: { 
-        title: 'Sample Count'
-    },
-    yaxis: {
-        categoryorder: 'Ascending'
-    }
-};
-
-Plotly.newPlot("bar", data, layout)
-
-};
-
-//Creating a bubble chart that displays each sample.
-//Using otu_ids for the x values, sample_values for the y values, sample_values for the marker size, otu_ids for the marker colors, and
-//otu_labels for the text values.
-ids, sampleV, hover_text 
-
-var Bubbleplot = function(ids, sample_values, hovText) {
-    var trace1 = {
-        x: ids,
-        y: sampleV,
-        mode: 'markers',
-        marker: {
-            opacity: 0.9,
-            size: sampleV,
-            color: ids
-        },
-        text: hover_text
+        // Slicing the first 10 values for the x axis
+        x: samples.slice(0, 10),
+        // Creating lables for chart 
+        y: Ids.map(x => `OTU ${x}`),
+        // Slicing the first 10 names of the otu_lables as the hovertext for the chart.
+        text: Labels.slice(0, 10),
+        
+        type: "bar",
+        // Orienting the bar chart to be horizontal 
+        orientation: "h"
     };
 
-var data = [trace1];
+  // Creating a data array for bar chart
+  var chart = [trace1];
+        
+  // Defining the bar chart values
+  var chartLayout = {
+      title: "Top 10 Operational Taxonomic Units",
+      xaxis: {
+          title: "Sample Values"
+      },
+      yaxis: {
+          categoryorder: "total ascending"
+      }
+  };
+  // Ploting the chart to a div tag with id "bar" 
+  // Include arrays: data1 and layout1
+  Plotly.newPlot("bar", chart, chartLayout)
 
-var layout = {
-    title: "Bubble chart of OTU IDs",
-    showlegend: false,
-    xaxis: {
-        title: "OTUs"
-    }
-};
+      // Creating bubble chart using sample_values as the values.
+      var trace2 = {
+        // Slicing the first 10 values for the x axis
+        x: samples.slice(0, 25),
+        // Creating lables for chart 
+        y: Ids.map(x => `${x}`),
 
-Plotly.newPlot('bubble', data, layout)
+        mode:"markers",
+        marker: {
 
-};
+        size: samples.slice(0,25),
 
-//Display the sample metadata, i.e., an individual's demographic information.
+        // Slicing the first 3000 names of the otu_lables as the hovertext for the chart.
+      text: Labels.slice(0, 8),
+        
+        // Associate color to the OTU IDs
+        color: Ids
+    },
+         // Slicing the first 3000 names of the otu_lables as the hovertext for the chart.
+         text: Labels.slice(0, 25),
+    };
+   // Create data array for plot
+   var Bubble = [trace2];
 
-var index = meta.indexOf(samples);
-console.log(index);
+   // Define the plot layout
+   var bubbleLayout = {
+       title: "Top 25 Operational Taxonomic Units v.s Sample Values",
+       showlegend: false,
+   };
 
-var demographics = Object.entries(metadata[index]);
-var selection = d3.select("#sample-metadata").selectAll("p")   
-            .data(demographics)
-
- selection.enter()
-    .append("p")
-    .merge(selection)
-    .text(function(d) {
-    return `${d[0]}: ${d[1]}`;
-            });
-
-init();
+   // Plot the bubble chart to a div tag with id "bubble" 
+   // Include arrays: data2 and layout2
+   Plotly.newPlot("bubble", Bubble, bubbleLayout);
+});
+ // Use otu_ids for the x values.
+//Use sample_values for the y values.
+//Use sample_values for the marker size.
+//Use otu_ids for the marker colors.
+//Use otu_labels for the text values.
